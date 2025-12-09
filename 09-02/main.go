@@ -73,51 +73,14 @@ func main() {
 		prev = &current
 	}
 
-	// Fill the matrix
-	fill := map[int]bool{}
-	newMatrix := make([][]int, len(matrix))
-	for x, col := range matrix {
-		fmt.Printf("Filling: %v/%v\n", x, len(matrix))
-		if x == 0 {
-			continue
-		}
-		prevCol := matrix[x-1]
-
-		newCol := make([]int, len(col))
-		for y, val := range col {
-			if val == 0 {
-				if fill[y] {
-					newCol[y] = 1
-				} else {
-					newCol[y] = 0
-				}
-				continue
-			}
-
-			newCol[y] = 1
-
-			if prevCol[y] == 1 {
-				continue
-			}
-			fill[y] = !fill[y]
-		}
-
-		newMatrix[x] = newCol
-	}
-	matrix = newMatrix
-	fmt.Println("huh")
-
 	allPreviousCords := []Coords{}
 	largestSize := 0
 
 	for i, current := range allCoords {
 		fmt.Printf("Finding: %v/%v\n", i, len(allCoords))
 		for _, c := range allPreviousCords {
-			if !SquareInMatrix(matrix, current, c) {
-				continue
-			}
 			size := CalculateSize(current, c)
-			if size > largestSize {
+			if size > largestSize && SquareInMatrix(matrix, current, c) {
 				largestSize = size
 			}
 		}
@@ -160,24 +123,31 @@ func BuildMatrix(matrixWidth, matrixHeight int) [][]int {
 }
 
 func SquareInMatrix(matrix [][]int, a, b Coords) bool {
-	minX := min(a.x, b.x)
-	maxX := max(a.x, b.x)
-	minY := min(a.y, b.y)
-	maxY := max(a.y, b.y)
+	// I make the educated guess that if the diff between the x's or y's is less than 3, it won't be the answer
+	// This simplifies the implementation
+	if GetDiff(a.x, b.x) < 3 || GetDiff(a.y, b.y) < 3 {
+		return false
+	}
+
+	minX := min(a.x, b.x) + 1
+	maxX := max(a.x, b.x) - 1
+	minY := min(a.y, b.y) + 1
+	maxY := max(a.y, b.y) - 1
+
 	for y := minY; y <= maxY; y++ {
-		if matrix[minX][y] == 0 {
+		if matrix[minX][y] == 1 {
 			return false
 		}
-		if matrix[maxX][y] == 0 {
+		if matrix[maxX][y] == 1 {
 			return false
 		}
 	}
 
 	for x := minX; x <= maxX; x++ {
-		if matrix[x][minY] == 0 {
+		if matrix[x][minY] == 1 {
 			return false
 		}
-		if matrix[x][maxY] == 0 {
+		if matrix[x][maxY] == 1 {
 			return false
 		}
 	}
