@@ -29,8 +29,6 @@ func main() {
 	fmt.Println(result)
 }
 
-// type Counts
-
 func GetNumberOfPathsToOut(input string) int {
 	if input == "out" {
 		return 1
